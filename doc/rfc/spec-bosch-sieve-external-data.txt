@@ -1,0 +1,280 @@
+
+
+
+Pigeonhole Project                                              S. Bosch
+                                                         January 7, 2010
+
+
+             Sieve Email Filtering: External Data Extension
+
+Abstract
+
+   In advanced mail filtering setups, it is often convenient to store
+   configuration data in an external data store.  This document updates
+   the Sieve filtering language (RFC 5228) with an extension to support
+   retrieving string values from external sources.  The extension
+   supplies a new test so that external data can be examined.  When the
+   variables extension (RFC5229) is also active, the external data can
+   also be accessed from a special variables namespace.
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
+   2.  Conventions Used in This Document . . . . . . . . . . . . . . . 2
+   3.  Capability Identifier . . . . . . . . . . . . . . . . . . . . . 2
+   4.  Naming of Data Items  . . . . . . . . . . . . . . . . . . . . . 2
+   5.  Extdata Test  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   6.  Variables Namespace extdata . . . . . . . . . . . . . . . . . . 3
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 4
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . . . 5
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bosch                                                           [Page 1]
+
+                      Sieve External Data Extension         January 2010
+
+
+1.  Introduction
+
+   This is an extension to the Sieve language defined by SIEVE
+   [RFC5228].  It adds support for referencing externally stored named
+   data.  In the Sieve base specification such data can only be made
+   available in a Sieve script by including it statically in the Sieve
+   script itself.  This extension adds a new test command to retrieve
+   and evaluate data items stored externally.  When the Sieve Variables
+   extension [RFC5229] is also active, a special variables namespace is
+   available through which the data items can be accessed more
+   conveniently for string substitution.
+
+   This extension is specific to the Pigeonhole Sieve implementation for
+   the Dovecot Secure IMAP server.  It will therefore most likely not be
+   supported by web interfaces and GUI-based ManageSieve clients.  This
+   extension is primarily meant for use in global scripts that are
+   managed by the systems administrator.
+
+
+2.  Conventions Used in This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+   Conventions for notations are as in SIEVE [RFC5228] Section 1.1.
+
+
+3.  Capability Identifier
+
+   The capability string associated with the extension defined in this
+   document is "vnd.dovecot.extdata".
+
+
+4.  Naming of Data Items
+
+   In the simplest case the name of a data store item is an identifier
+   as defined in the SIEVE [RFC5228] grammar.  For more complex
+   situations, e.g. when multiple data stores are available, the name
+   can be structured hierarchically just like the namespace syntax
+   defined in VARIABLES [RFC5229], with the restriction that numeric
+   (num-variable) elements are not allowed.  This yields the following
+   syntax for a data item name:
+
+   data-item-name      =  identifier *("." identifier)
+
+
+
+
+
+
+Bosch                                                           [Page 2]
+
+                      Sieve External Data Extension         January 2010
+
+
+5.  Extdata Test
+
+   Usage:   extdata [COMPARATOR] [MATCH-TYPE]
+                    <item-name: string>
+                    <key-list: string-list>
+
+   The extdata test retrieves the data item specified by the item-name
+   string from the external data store and matches it to the values
+   specified in the key-list argument.  The specified item-name MUST
+   conform to the syntax defined in Section 4.  The test succeeds if a
+   match occurs.  The type of match defaults to ":is" and the default
+   comparator is "i;ascii-casemap".
+
+   The environment test MUST fail unconditionally if the specified data
+   item cannot be retrieved, e.g. because it does not exist in the
+   external data store or when the data store is not available.  A
+   script MUST NOT fail with an error if the item cannot be retrieved.
+   This allows scripts to be written that handle nonexistent items
+   gracefully.  In particular, the test:
+
+     if extdata :contains "value" "" { ... }
+
+   only succeeds if "value" exists in the data store, and always
+   succeeds if it is.
+
+   The "relational" extension [RFC5231] adds a match type called
+   ":count".  The count of an extdata test is 0 if the extdata
+   information returned is the empty string, or 1 otherwise.
+
+
+6.  Variables Namespace extdata
+
+   This document defines the variables namespace "extdata", as specified
+   in VARIABLES [RFC5229], Section 3.  The extdata namespace provides
+   direct access to the data items in the external data store.
+
+   Example:
+
+   require ["vacation", "variables", "vnd.dovecot.extdata"];
+
+   vacation :subject "${extdata.vacation_subject}"
+            "${extdata.vacation_message}";
+
+   External data items accessed via the extdata test and the extdata
+   variables namespace MUST be one and the same.  The following example
+   scripts are equivalent:
+
+   Example 1:
+
+
+
+Bosch                                                           [Page 3]
+
+                      Sieve External Data Extension         January 2010
+
+
+   require ["fileinto", "variables", "vnd.dovecot.extdata"];
+
+   if allof (header :is "X-Spam-Status" "Yes",
+     extdata :is "discard_spam" "yes") {
+     discard;
+   } else {
+     fileinto "Spam";
+   }
+
+   Example 2:
+
+   require ["fileinto", variables", "vnd.dovecot.extdata"];
+
+   if allof (header :is "X-Spam-Status" "Yes",
+     string :is "${extdata.discard_spam}" "yes") {
+     discard;
+   } else {
+     fileinto "Spam";
+   }
+
+   The extdata namespace accepts any identifier as variable name.  A
+   script MUST NOT fail with an error when a data item is referenced
+   that does not exist in the external data store or otherwise cannot be
+   retrieved.  In that case the empty string will be substituted, which
+   is analogous to the substitution of unset normal variables.  Use the
+   extdata test to evaluate wether a data item exists and can be
+   retrieved.
+
+   This extension only concerns the retrieval of external data items and
+   therefore it is not possible to assign values to items within the
+   extdata variables namespace using for example the "set" action
+   defined in VARIABLES [RFC5229].  A script MUST fail with an error
+   when an attempt is made to assign to an item in the extdata
+   namespace.
+
+
+7.  Acknowledgements
+
+   Martin F. Foster provided the original idea for this extension.
+
+
+8.  Security Considerations
+
+   Administrators should keep in mind that retrieving values from an
+   external data store can reveal more data to a user than strictly
+   allowed when the data store is not queried carefully.
+
+
+
+
+
+Bosch                                                           [Page 4]
+
+                      Sieve External Data Extension         January 2010
+
+
+9.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC5228]  Guenther, P. and T. Showalter, "Sieve: An Email Filtering
+              Language", RFC 5228, January 2008.
+
+   [RFC5229]  Homme, K., "Sieve Email Filtering: Variables Extension",
+              RFC 5229, January 2008.
+
+   [RFC5231]  Segmuller, W. and B. Leiba, "Sieve Email Filtering:
+              Relational Extension", RFC 5231, January 2008.
+
+
+Author's Address
+
+   Stephan Bosch
+   Enschede
+   NL
+
+   Email: stephan@rename-it.nl
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bosch                                                           [Page 5]
+

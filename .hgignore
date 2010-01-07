@@ -48,4 +48,3 @@ ylwrap
 **/Makefile
 **/Makefile.in
 
-doc/rfc/*.txt
