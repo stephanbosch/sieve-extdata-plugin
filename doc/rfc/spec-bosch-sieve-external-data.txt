@@ -126,12 +126,12 @@ Bosch                                                           [Page 2]
    match occurs.  The type of match defaults to ":is" and the default
    comparator is "i;ascii-casemap".
 
-   The environment test MUST fail unconditionally if the specified data
-   item cannot be retrieved, e.g. because it does not exist in the
-   external data store or when the data store is not available.  A
-   script MUST NOT fail with an error if the item cannot be retrieved.
-   This allows scripts to be written that handle nonexistent items
-   gracefully.  In particular, the test:
+   The extdata test MUST fail unconditionally if the specified data item
+   cannot be retrieved, e.g. because it does not exist in the external
+   data store or when the data store is not available.  A script MUST
+   NOT fail with an error if the item cannot be retrieved.  This allows
+   scripts to be written that handle nonexistent items gracefully.  In
+   particular, the test:
 
      if extdata :contains "value" "" { ... }
 
