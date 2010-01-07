@@ -13,7 +13,7 @@
 
 void sieve_extdata_plugin_load(struct sieve_instance *svinst)
 {
-	(void)sieve_extension_register(svinst, &sieve_extdata_extension, TRUE);
+	(void)sieve_extension_register(svinst, &extdata_extension, TRUE);
 }
 
 void sieve_extdata_plugin_unload(struct sieve_instance *svinst ATTR_UNUSED)

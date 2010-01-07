@@ -90,12 +90,12 @@ bool vnspc_sieve_extdata_generate
 {
 	const struct sieve_extension *this_ext = SIEVE_OBJECT_EXTENSION(nspc);	
 	const char *variable = (const char *) var_data;
-	struct ext_sieve_extdata_context *ext_data;
+	struct ext_extdata_context *ext_data;
 
 	if ( this_ext == NULL )
 		return FALSE;
 
-	ext_data = (struct ext_sieve_extdata_context *) this_ext->context;
+	ext_data = (struct ext_extdata_context *) this_ext->context;
 
 	sieve_variables_opr_namespace_variable_emit
 		(cgenv->sbin, ext_data->var_ext, this_ext, &extdata_namespace);
@@ -155,7 +155,7 @@ bool vnspc_sieve_extdata_dump_variable
 static const struct sieve_extension_objects extdata_namespaces =
 	SIEVE_VARIABLES_DEFINE_NAMESPACE(extdata_namespace);
 
-const struct sieve_operand_def xtdata_namespace_operand = {
+const struct sieve_operand_def extdata_namespace_operand = {
 	"extdata-namespace",
 	&extdata_extension,
 	0,
