@@ -21,7 +21,8 @@ TEST_BIN = $(TESTSUITE_BIN)
 #endif
 
 test_cases = \
-	tests/extdata-test.svtest
+	tests/extdata-test.svtest \
+	tests/extdata-namespace.svtest
 
 $(test_cases):
 	@$(TEST_BIN) $@
