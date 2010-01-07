@@ -5,7 +5,7 @@ config.cache
 config.guess
 dummy-config.h
 dummy-config.h.in
-dict-lookup-config.h
+sieve-extdata-config.h
 config.log
 config.status
 config.sub
