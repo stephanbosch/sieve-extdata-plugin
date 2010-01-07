@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+     There has to be one entity for each item to be referenced. 
+     An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC5228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5228.xml">
+<!ENTITY RFC5229 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5229.xml">
+<!ENTITY RFC5231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5231.xml">
+<!ENTITY RFC3552 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3552.xml">
+<!ENTITY I-D.narten-iana-considerations-rfc2434bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.narten-iana-considerations-rfc2434bis.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+     please see http://xml.resource.org/authoring/README.html. -->
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<?rfc private="Pigeonhole Project" ?>
+
+<rfc category="info" docName="spec-bosch-sieve-dict-lookup">
+<!-- ***** FRONT MATTER ***** -->
+
+<front>
+<title abbrev="Sieve External Data Extension">
+Sieve Email Filtering: External Data Extension
+</title>
+
+<author fullname="Stephan Bosch" initials="S." surname="Bosch">
+  <organization/>
+  <address>
+    <postal>
+      <street></street>
+      <city>Enschede</city>
+      <country>NL</country>
+    </postal>
+    <email>stephan@rename-it.nl</email>
+  </address>
+</author>
+
+<date month="January" year="2010" />
+
+<area>General</area>
+<workgroup>Pigeonhole Project</workgroup>
+<keyword>sieve</keyword>
+<keyword>dict</keyword>
+<keyword>lookup</keyword>
+
+<abstract>
+<t>In advanced mail filtering setups, it is often convenient to store configuration
+data in an external data store. This document updates the Sieve filtering language 
+(RFC 5228) with an extension to support retrieving string values from external sources.
+The extension supplies a new test so that external data can be examined. When the 
+variables extension (RFC5229) is also active, the external data can also be accessed from
+a special variables namespace. 
+</t>
+</abstract>
+</front>
+
+<middle>
+
+<section title="Introduction">
+<t>This is an extension to the Sieve language defined by <xref target="RFC5228">SIEVE</xref>. It
+adds support for referencing externally stored named data. In the Sieve base specification such data
+can only be made available in a Sieve script by including it statically in the Sieve script itself.
+This extension adds a new test command to retrieve and evaluate data items stored externally. When
+the <xref target="RFC5229">Sieve Variables extension</xref> is also active, a special variables
+namespace is available through which the data items can be accessed more conveniently for string
+substitution.</t>
+<t>This extension is specific to the Pigeonhole Sieve implementation for the Dovecot Secure IMAP
+server. It will therefore most likely not be supported by web interfaces and GUI-based ManageSieve 
+clients. This extension is primarily meant for use in global scripts that are managed by the
+systems administrator.</t>
+</section>
+
+<section title="Conventions Used in This Document">
+<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in <xref target="RFC2119">RFC 2119</xref>.</t>
+<t>Conventions for notations are as in <xref target="RFC5228">SIEVE</xref> Section 1.1.</t>
+</section>
+
+<section title="Capability Identifier">
+<t>The capability string associated with the extension defined in this document is
+"vnd.dovecot.extdata".</t>
+</section>
+
+<section title="Naming of Data Items" anchor="naming">
+<t>In the simplest case the name of a data store item is an identifier as defined in the 
+<xref target="RFC5228">SIEVE</xref> grammar. For more complex situations, e.g. when multiple data
+stores are available, the name can be structured hierarchically just like the namespace
+syntax defined in <xref target="RFC5229">VARIABLES</xref>, with the restriction that numeric
+(num-variable) elements are not allowed. This yields the following syntax for a data item name:
+</t>
+<figure>
+<artwork><![CDATA[
+data-item-name      =  identifier *("." identifier)
+]]></artwork>
+</figure>
+
+</section>
+
+<section title="Extdata Test">
+<figure>
+<artwork><![CDATA[
+Usage:   extdata [COMPARATOR] [MATCH-TYPE]
+                 <item-name: string>
+                 <key-list: string-list>
+]]></artwork>
+</figure>
+
+<t>The extdata test retrieves the data item specified by the item-name string from the external
+data store and matches it to the values specified in the key-list argument. The specified item-name
+MUST conform to the syntax defined in <xref target="naming"/>. The test succeeds if a match occurs. The type of 
+match defaults to ":is" and the default comparator is "i;ascii-casemap".</t>
+
+<t>The environment test MUST fail unconditionally if the specified data item cannot be retrieved,
+e.g. because it does not exist in the external data store or when the data store is not available.
+A script MUST NOT fail with an error if the item cannot be retrieved. This allows scripts to be 
+written that handle nonexistent items gracefully.  In particular, the test:</t>
+
+<figure>
+<artwork><![CDATA[
+  if extdata :contains "value" "" { ... }
+]]></artwork>
+</figure>
+
+<t>only succeeds if "value" exists in the data store, and always succeeds if it is.</t>
+
+<t>The <xref target="RFC5231">"relational" extension</xref> adds a match type called ":count".  The count of an
+extdata test is 0 if the extdata information returned is the empty string, or 1 otherwise.</t>
+</section>
+
+<section title="Variables Namespace extdata">
+
+<t>This document defines the variables namespace "extdata", as specified in <xref target="RFC5229">VARIABLES</xref>,
+Section 3. The extdata namespace provides direct access to the data items in the external data store.</t>
+
+<t>Example:</t>
+
+<figure>
+<artwork><![CDATA[
+require ["vacation", "variables", "vnd.dovecot.extdata"];
+
+vacation :subject "${extdata.vacation_subject}" 
+         "${extdata.vacation_message}";
+]]></artwork>
+</figure>
+
+<t>External data items accessed via the extdata test and the extdata variables namespace MUST be one and the same.  
+The following example scripts are equivalent:</t>
+
+<t>Example 1:</t>
+
+<figure>
+<artwork><![CDATA[
+require ["fileinto", "variables", "vnd.dovecot.extdata"];
+
+if allof (header :is "X-Spam-Status" "Yes",
+  extdata :is "discard_spam" "yes") {
+  discard;
+} else {
+  fileinto "Spam";
+}
+]]></artwork>
+</figure>
+
+<t>Example 2:</t>
+
+<figure>
+<artwork><![CDATA[
+require ["fileinto", variables", "vnd.dovecot.extdata"];
+
+if allof (header :is "X-Spam-Status" "Yes",
+  string :is "${extdata.discard_spam}" "yes") {
+  discard;
+} else {
+  fileinto "Spam";
+}
+]]></artwork>
+</figure>
+
+<t>The extdata namespace accepts any identifier as variable name. A script MUST NOT 
+fail with an error when a data item is referenced that does not exist in the external
+data store or otherwise cannot be retrieved. In that case the empty string will be 
+substituted, which is analogous to the substitution of unset normal variables. Use
+the extdata test to evaluate wether a data item exists and can be retrieved. 
+</t>
+
+<t>This extension only concerns the retrieval of external data items and therefore
+it is not possible to assign values to items within the extdata variables namespace using
+for example the "set" action defined in <xref target="RFC5229">VARIABLES</xref>. A
+script MUST fail with an error when an attempt is made to assign to an item in the
+extdata namespace. 
+</t>
+</section>
+
+<section anchor="Acknowledgements" title="Acknowledgements">
+<t>Martin F. Foster provided the original idea for this extension.</t>
+</section>
+
+<section anchor="Security" title="Security Considerations">
+<t>Administrators should keep in mind that retrieving values from an external
+data store can reveal more data to a user than strictly allowed when the data
+store is not queried carefully. 
+</t>
+</section>
+</middle>
+
+<!--  *****BACK MATTER ***** -->
+
+<back>
+<!-- References split into informative and normative -->
+
+<references title="Normative References">
+  &RFC2119;
+  &RFC5228;
+  &RFC5229;
+  &RFC5231;
+</references>
+
+<!-- <references title="Informative References">
+  &RFC3552;
+ </references> -->
+</back>
+
+</rfc>
