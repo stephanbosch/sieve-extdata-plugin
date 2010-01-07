@@ -50,18 +50,36 @@ fi
 
 if test -d "$dovecotdir/src"; then
   # compiling against sources
-  have_dovecot_libs=yes
+  have_dovecot_sources=yes
 else
   # compiling against installed headers
-  have_dovecot_libs=no
+  have_dovecot_sources=no
 fi
-AM_CONDITIONAL(HAVE_DOVECOT_LIBS, test "$have_dovecot_libs" = "yes")
+AM_CONDITIONAL(HAVE_DOVECOT_SOURCES, test "$have_dovecot_sources" = "yes")
 
 dnl replace relative ../ paths in the file with full paths
 eval `cat $dovecotdir/dovecot-config|sed 's,\$(top_builddir)/,$dovecotdir/,g'`
 
-if test $have_dovecot_libs = yes; then
+if test $have_dovecot_sources = yes; then
   dovecot_incdir="$dovecotdir"
+
+  LIBDOVECOT_INCLUDE=' \
+    -I$(dovecot_incdir) \
+    -I$(dovecot_incdir)/src/lib \
+    -I$(dovecot_incdir)/src/lib-dict \
+    -I$(dovecot_incdir)/src/lib-mail \
+    -I$(dovecot_incdir)/src/lib-storage \
+    -I$(dovecot_incdir)/src/lib-imap \
+    -I$(dovecot_incdir)/src/lib-master'
+
+  LIBDOVECOT_STORAGE_INCLUDE=' \
+    -I$(dovecot_incdir)/src/lib-settings \
+    -I$(dovecot_incdir)/src/lib-index \
+    -I$(dovecot_incdir)/src/lib-storage/index \
+    -I$(dovecot_incdir)/src/lib-storage/index/raw'
+else
+  LIBDOVECOT_INCLUDE='-I$(dovecot_incdir)'
+  LIBDOVECOT_STORAGE_INCLUDE=''
 fi
 
 sieve_testsuite=""
@@ -88,7 +106,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "$sieve_testsuite")
 
-
 pigeonhole_incdir="$pigeonholedir"
 
 AC_SUBST(STORAGE_LIBS)
@@ -101,6 +118,9 @@ AC_SUBST(pigeonhole_incdir)
 AC_SUBST(sieve_incdir)
 AC_SUBST(sieve_variables_incdir)
 AC_SUBST(sieve_testsuite)
+
+AC_SUBST(LIBDOVECOT_INCLUDE)
+AC_SUBST(LIBDOVECOT_STORAGE_INCLUDE)
 
 AC_CONFIG_FILES([
 Makefile
