@@ -1,6 +1,6 @@
 
 /* Define to the full name of this Sieve implementation. */
-#undef DICT_LOOKUP_NAME
+#undef SIEVE_EXTDATA_NAME
 
 /* Define to the version of this Sieve implementation. */
-#undef DICT_LOOKUP_VERSION
+#undef SIEVE_EXTDATA_VERSION
