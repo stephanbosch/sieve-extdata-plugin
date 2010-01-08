@@ -3,7 +3,7 @@ Extdata extension for Pigeonhole Sieve
 Introduction
 ------------
 
-Sieve (RFC 5228) is a highly extsible machine language specifically tailored for
+Sieve (RFC 5228) is a highly extensible machine language specifically tailored for
 internet message filtering. For the Dovecot Secure IMAP server, Sieve support is
 provided by the Pigeonhole Sieve plugin. This package extends the Sieve filtering
 implementation with an extension to support retrieving string values from external 
@@ -16,6 +16,10 @@ Secure IMAP server.  It will therefore most likely not be supported by web
 interfaces or GUI-based Sieve editors.  This extension is primarily meant for use 
 in global scripts that are managed by the systems administrator.
 
+On the background, this plugin uses Dovecot's dict support as a generic interface
+for accessing data stores. Through this interface the extdata extension can
+provide access a SQL database for example.
+
 Compiling and Configuring
 -------------------------
 
@@ -24,14 +28,20 @@ Refer to INSTALL file.
 Using
 -----
 
-Refer to the specification of the extension in doc/rfc/spec-bosch-sieve-extdata.txt
+Refer to doc/rfc/spec-bosch-sieve-extdata.txt for a specification of the Sieve
+language extension.
+
+Currently, only one external data store may be specified using a dict uri. Data 
+items referenced from the Sieve script are simple identifiers that are queried from
+the dict lookup, after being prefixed with "priv/". So, the data item "name" 
+(or as a variable "${extdata.name}") will map to "priv/name" in the dict.  
 
 Implementation Status
 ---------------------
 
-The extension is conceptual and experimental, meaning that the language extension
-is still subject to change and that the current implementation is not thoroughly
-tested.
+The Extdata Sieve language extension is vendor-specific with draft status and the
+implementation is experimental, which means that the language extension is still 
+subject to change and that the current implementation is not thoroughly tested.
 
 Authors
 -------
