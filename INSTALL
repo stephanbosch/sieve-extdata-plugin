@@ -17,10 +17,10 @@ configure needs to be executed with the following parameters:
 
   --with-pigeonhole=<path>	
     Path to the Pigeonhole headers. If the --with-dovecot parameter points
-    to the path where dovecot-config is installed, this parameter is 
-    usually not necessary. This parameter may either point to the a
-    Pigeonhole source tree or the location where the Pigeonhole headers 
-    are installed on your system.
+    to the path where dovecot-config is installed on your system, this
+    parameter is usually not necessary. This parameter may either point to
+    the a Pigeonhole source tree or the location where the Pigeonhole
+    headers are installed on your system.
 
 For example, when compiling against sources:
 
@@ -56,5 +56,5 @@ plugin {
 
   sieve_plugins = sieve_extdata
 
-  sieve_extdata_dict_uri = file:/etc/pigeonhole-sieve.dict
+  sieve_extdata_dict_uri = file:/etc/dovecot/pigeonhole-sieve.dict
 }

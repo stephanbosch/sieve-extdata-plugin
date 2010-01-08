@@ -1,0 +1,50 @@
+Extdata extension for Pigeonhole Sieve
+
+Introduction
+------------
+
+Sieve (RFC 5228) is a highly extsible machine language specifically tailored for
+internet message filtering. For the Dovecot Secure IMAP server, Sieve support is
+provided by the Pigeonhole Sieve plugin. This package extends the Sieve filtering
+implementation with an extension to support retrieving string values from external 
+sources.  The extension supplies a new test so that external data can be examined. 
+When the variables extension (RFC5229) is also active, the external data can also
+be accessed from a special variables namespace.
+
+This extension is specific to the Pigeonhole Sieve implementation for the Dovecot
+Secure IMAP server.  It will therefore most likely not be supported by web 
+interfaces and GUI-based ManageSieve clients.  This extension is primarily meant
+for use in global scripts that are managed by the systems administrator.
+
+Compiling and Configuring
+-------------------------
+
+Refer to INSTALL file.
+
+Using
+-----
+
+Refer to the specification of the extension in doc/rfc/spec-bosch-sieve-extdata.txt
+
+Implementation Status
+---------------------
+
+The extension is conceptual and experimental, meaning that the language extension
+is still subject to change and that the current implementation is not thoroughly
+tested.
+
+Authors
+-------
+
+Refer to AUTHORS file.
+
+Contact Info
+------------
+
+Stephan Bosch <stephan at rename-it dot nl>
+IRC: Freenode, #dovecot, S[r]us
+Web: http://pigeonhole.dovecot.org
+
+Please use the Dovecot mailing list <dovecot at dovecot.org> for questions about 
+this package. You can post to the list without subscribing, the mail then waits 
+in a moderator queue for a while. See http://dovecot.org/mailinglists.html
