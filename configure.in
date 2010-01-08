@@ -62,26 +62,27 @@ eval `cat $dovecotdir/dovecot-config|sed 's,\$(top_builddir)/,$dovecotdir/,g'`
 
 if test $have_dovecot_sources = yes; then
   dovecot_incdir="$dovecotdir"
+fi
 
+if test -d "$dovecot_incdir/src"; then
   LIBDOVECOT_INCLUDE='-I$(dovecot_incdir) -I$(dovecot_incdir)/src/lib -I$(dovecot_incdir)/src/lib-dict -I$(dovecot_incdir)/src/lib-storage -I$(dovecot_incdir)/src/lib-mail'
 else
   LIBDOVECOT_INCLUDE='-I$(dovecot_incdir)'
 fi
 
-sieve_testsuite=""
+PIGEONHOLE_TESTSUITE=
 if test -f "$pigeonholedir/src/lib-sieve/sieve.h"; then
-  sieve_incdir="$pigeonholedir/src/lib-sieve"
-  sieve_variables_incdir="$pigeonholedir/src/lib-sieve/plugins/variables"
+  pigeonhole_incdir="$pigeonholedir"
+  LIBSIEVE_INCLUDE='-I$(pigeonhole_incdir) -I$(pigeonhole_incdir)/src/lib-sieve -I$(pigeonholedir)/src/lib-sieve/plugins/variables'
   if test -f "$pigeonholedir/src/testsuite/testsuite"; then
-    sieve_testsuite="$pigeonholedir/src/testsuite/testsuite"
+    PIGEONHOLE_TESTSUITE="${pigeonholedir}/src/testsuite/testsuite"
   fi
 elif (test -f "$pigeonholedir/sieve.h") && (test -f "$pigeonholedir/sieve-ext-variables.h"); then
-  sieve_incdir="$pigeonholedir"
-  sieve_variables_incdir="$pigeonholedir"
+  pigeonhole_incdir="$pigeonholedir"
+  LIBSIEVE_INCLUDE='-I$(pigeonhole_incdir)'
 elif (test $have_dovecot_libs = no) && (test -f "$dovecot_incdir/sieve/sieve.h"); then
-  sieve_incdir="$dovecot_incdir/sieve"
-  sieve_variables_incdir="$dovecot_incdir/sieve"
-  pigeonholedir="$dovecot_incdir/sieve"
+  pigeonhole_incdir="$(dovecot_incdir)/sieve"
+  LIBSIEVE_INCLUDE='-I$(pigeonhole_incdir)'
 else
   echo
   echo "Pigeonhole Sieve headers not found from $pigeonholedir and "
@@ -90,9 +91,7 @@ else
   echo "or installed headers."
   AC_MSG_ERROR([pigeonhole not found])
 fi
-AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "$sieve_testsuite")
-
-pigeonhole_incdir="$pigeonholedir"
+AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "${PIGEONHOLE_TESTSUITE}")
 
 AC_SUBST(STORAGE_LIBS)
 AC_SUBST(LIBICONV)
@@ -101,12 +100,12 @@ AC_SUBST(MODULE_LIBS)
 AC_SUBST(dovecot_incdir)
 AC_SUBST(moduledir)
 AC_SUBST(pigeonhole_incdir)
-AC_SUBST(sieve_incdir)
-AC_SUBST(sieve_variables_incdir)
-AC_SUBST(sieve_testsuite)
 
 AC_SUBST(LIBDOVECOT_INCLUDE)
 AC_SUBST(LIBDOVECOT_STORAGE_INCLUDE)
+AC_SUBST(LIBSIEVE_INCLUDE)
+AC_SUBST(PIGEONHOLE_TESTSUITE)
+
 
 AC_CONFIG_FILES([
 Makefile

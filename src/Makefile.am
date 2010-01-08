@@ -7,9 +7,7 @@ lib90_sieve_extdata_plugin_la_LDFLAGS = -module -avoid-version
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(LIBDOVECOT_INCLUDE) \
-	-I$(pigeonhole_incdir) \
-	-I$(sieve_incdir) \
-	-I$(sieve_variables_incdir) \
+	$(LIBSIEVE_INCLUDE) \
 	-DPKG_RUNDIR=\""$(rundir)"\"
 
 tests = \
