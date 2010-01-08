@@ -63,23 +63,9 @@ eval `cat $dovecotdir/dovecot-config|sed 's,\$(top_builddir)/,$dovecotdir/,g'`
 if test $have_dovecot_sources = yes; then
   dovecot_incdir="$dovecotdir"
 
-  LIBDOVECOT_INCLUDE=' \
-    -I$(dovecot_incdir) \
-    -I$(dovecot_incdir)/src/lib \
-    -I$(dovecot_incdir)/src/lib-dict \
-    -I$(dovecot_incdir)/src/lib-mail \
-    -I$(dovecot_incdir)/src/lib-storage \
-    -I$(dovecot_incdir)/src/lib-imap \
-    -I$(dovecot_incdir)/src/lib-master'
-
-  LIBDOVECOT_STORAGE_INCLUDE=' \
-    -I$(dovecot_incdir)/src/lib-settings \
-    -I$(dovecot_incdir)/src/lib-index \
-    -I$(dovecot_incdir)/src/lib-storage/index \
-    -I$(dovecot_incdir)/src/lib-storage/index/raw'
+  LIBDOVECOT_INCLUDE='-I$(dovecot_incdir) -I$(dovecot_incdir)/src/lib -I$(dovecot_incdir)/src/lib-dict -I$(dovecot_incdir)/src/lib-storage -I$(dovecot_incdir)/src/lib-mail'
 else
   LIBDOVECOT_INCLUDE='-I$(dovecot_incdir)'
-  LIBDOVECOT_STORAGE_INCLUDE=''
 fi
 
 sieve_testsuite=""
