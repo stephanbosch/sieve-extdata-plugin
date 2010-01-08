@@ -5,31 +5,31 @@ Pigeonhole Project                                              S. Bosch
                                                          January 8, 2010
 
 
-             Sieve Email Filtering: External Data Extension
+             Sieve Email Filtering: Externally Stored Data
 
 Abstract
 
    In advanced mail filtering setups, it is often convenient to store
-   configuration data in an external data store.  This document updates
-   the Sieve filtering language (RFC 5228) with an extension to support
-   retrieving string values from external sources.  The extension
-   supplies a new test so that external data can be examined.  When the
-   variables extension (RFC5229) is also active, the external data can
-   also be accessed from a special variables namespace.
+   global configuration data in an external data store for easy
+   configuration management.  The base specification of the Sieve
+   filtering langage (RFC 5228) only allows for hardcoding configuration
+   data in Sieve script itself, which means that the script needs to be
+   updated each time the configuration changes.  This document updates
+   the Sieve filtering language with an extension to support retrieving
+   string data from external sources.  The extension supplies a new test
+   so that external data can be examined.  When the variables extension
+   (RFC5229) is also active, the external data can also be directly
+   accessed as a special variables namespace.
 
 
-Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 2
-   2.  Conventions Used in This Document . . . . . . . . . . . . . . . 2
-   3.  Capability Identifier . . . . . . . . . . . . . . . . . . . . . 2
-   4.  Naming of Data Items  . . . . . . . . . . . . . . . . . . . . . 2
-   5.  Extdata Test  . . . . . . . . . . . . . . . . . . . . . . . . . 3
-   6.  Variables Namespace extdata . . . . . . . . . . . . . . . . . . 3
-   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 4
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
-   9.  Normative References  . . . . . . . . . . . . . . . . . . . . . 5
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 5
+
+
+
+
+
+
+
 
 
 
@@ -54,20 +54,78 @@ Table of Contents
 
 Bosch                                                           [Page 1]
 
-                      Sieve External Data Extension         January 2010
+                 Sieve Extension: Externally Stored Data    January 2010
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 3
+   2.  Conventions Used in This Document . . . . . . . . . . . . . . . 3
+   3.  Capability Identifier . . . . . . . . . . . . . . . . . . . . . 3
+   4.  Naming of Data Items  . . . . . . . . . . . . . . . . . . . . . 3
+   5.  Extdata Test  . . . . . . . . . . . . . . . . . . . . . . . . . 4
+   6.  Variables Namespace extdata . . . . . . . . . . . . . . . . . . 4
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 5
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . . . 6
+   9.  Normative References  . . . . . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Bosch                                                           [Page 2]
+
+                 Sieve Extension: Externally Stored Data    January 2010
 
 
 1.  Introduction
 
    This is an extension to the Sieve language defined by SIEVE
    [RFC5228].  It adds support for referencing externally stored named
-   data.  In the Sieve base specification such data can only be made
-   available in a Sieve script by including it statically in the Sieve
-   script itself.  This extension adds a new test command to retrieve
-   and evaluate data items stored externally.  When the Sieve Variables
-   extension [RFC5229] is also active, a special variables namespace is
-   available through which the data items can be accessed more
-   conveniently for string substitution.
+   data.  In advanced mail filtering setups, it is often convenient to
+   store global configuration data in an external data store for easy
+   configuration management.  In the Sieve base specification such data
+   can only be made available in a Sieve script by hardcoding it in the
+   Sieve script itself.  This extension adds a new test command to
+   retrieve and evaluate data items stored externally.  When the Sieve
+   Variables extension [RFC5229] is also active, a special variables
+   namespace is available through which the data items can be accessed
+   directly for string substitution.
 
    This extension is specific to the Pigeonhole Sieve implementation for
    the Dovecot Secure IMAP server.  It will therefore most likely not be
@@ -103,15 +161,16 @@ Bosch                                                           [Page 1]
    defined in VARIABLES [RFC5229], with the restriction that numeric
    (num-variable) elements are not allowed.  The first element of a
    hierarchical item name identifies the data store and subsequent
+
+
+
+Bosch                                                           [Page 3]
+
+                 Sieve Extension: Externally Stored Data    January 2010
+
+
    elements identify the data item within that data store.  This yields
    the following syntax for a hierarchical data item name:
-
-
-
-Bosch                                                           [Page 2]
-
-                      Sieve External Data Extension         January 2010
-
 
    item-name         =  data-store-name "." identifier *("." identifier)
    data-store-name   =  identifier
@@ -158,17 +217,17 @@ Bosch                                                           [Page 2]
    require ["vacation", "variables", "vnd.dovecot.extdata"];
 
    vacation :subject "${extdata.vacation_subject}"
+
+
+
+Bosch                                                           [Page 4]
+
+                 Sieve Extension: Externally Stored Data    January 2010
+
+
             "${extdata.vacation_message}";
 
    External data items accessed via the extdata test and the extdata
-
-
-
-Bosch                                                           [Page 3]
-
-                      Sieve External Data Extension         January 2010
-
-
    variables namespace MUST be one and the same.  The following example
    scripts are equivalent:
 
@@ -214,17 +273,17 @@ Bosch                                                           [Page 3]
    Martin F. Foster provided the original idea for this extension.
 
 
+
+
+
+Bosch                                                           [Page 5]
+
+                 Sieve Extension: Externally Stored Data    January 2010
+
+
 8.  Security Considerations
 
    Administrators should keep in mind that retrieving values from an
-
-
-
-Bosch                                                           [Page 4]
-
-                      Sieve External Data Extension         January 2010
-
-
    external data store can reveal more data to a user than strictly
    allowed when the data store is not queried carefully.
 
@@ -273,8 +332,5 @@ Author's Address
 
 
 
-
-
-
-Bosch                                                           [Page 5]
+Bosch                                                           [Page 6]
 

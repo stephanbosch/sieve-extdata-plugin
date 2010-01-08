@@ -13,8 +13,8 @@ be accessed from a special variables namespace.
 
 This extension is specific to the Pigeonhole Sieve implementation for the Dovecot
 Secure IMAP server.  It will therefore most likely not be supported by web 
-interfaces and GUI-based ManageSieve clients.  This extension is primarily meant
-for use in global scripts that are managed by the systems administrator.
+interfaces or GUI-based Sieve editors.  This extension is primarily meant for use 
+in global scripts that are managed by the systems administrator.
 
 Compiling and Configuring
 -------------------------
