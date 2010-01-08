@@ -15,8 +15,6 @@
 ]>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
 <!-- used by XSLT processors -->
-<!-- For a complete list and description of processing instructions (PIs), 
-     please see http://xml.resource.org/authoring/README.html. -->
 <?rfc strict="yes" ?>
 <?rfc toc="yes"?>
 <?rfc tocdepth="4"?>
@@ -94,15 +92,22 @@ document are to be interpreted as described in <xref target="RFC2119">RFC 2119</
 </section>
 
 <section title="Naming of Data Items" anchor="naming">
-<t>In the simplest case the name of a data store item is an identifier as defined in the 
-<xref target="RFC5228">SIEVE</xref> grammar. For more complex situations, e.g. when multiple data
-stores are available, the name can be structured hierarchically just like the namespace
-syntax defined in <xref target="RFC5229">VARIABLES</xref>, with the restriction that numeric
-(num-variable) elements are not allowed. This yields the following syntax for a data item name:
+<t>In the simplest case, i.e. when the implementation is restricted to only one distinct data 
+store or when the source of the data item has no significance, the name of an external data item
+MAY be a simple identifier as defined in the <xref target="RFC5228">SIEVE</xref> grammar.
+</t>
+
+<t>When multiple distinct data stores are available, the item name MUST be structured 
+hierarchically just like the variables namespace syntax defined in 
+<xref target="RFC5229">VARIABLES</xref>, with the restriction that numeric (num-variable)
+elements are not allowed. The first element of a hierarchical item name identifies the data
+store and subsequent elements identify the data item within that data store. This yields the
+following syntax for a hierarchical data item name:
 </t>
 <figure>
 <artwork><![CDATA[
-data-item-name      =  identifier *("." identifier)
+item-name         =  data-store-name "." identifier *("." identifier)
+data-store-name   =  identifier
 ]]></artwork>
 </figure>
 
@@ -125,15 +130,16 @@ match defaults to ":is" and the default comparator is "i;ascii-casemap".</t>
 <t>The extdata test MUST fail unconditionally if the specified data item cannot be retrieved,
 e.g. because it does not exist in the external data store or when the data store is not available.
 A script MUST NOT fail with an error if the item cannot be retrieved. This allows scripts to be 
-written that handle nonexistent items gracefully.  In particular, the test:</t>
+written that handle nonexistent items gracefully. In particular, the test:</t>
 
 <figure>
 <artwork><![CDATA[
-  if extdata :contains "value" "" { ... }
+  if extdata :contains "item" "" { ... }
 ]]></artwork>
 </figure>
 
-<t>only succeeds if "value" exists in the data store, and always succeeds if it is.</t>
+<t>only fails if the "item" does not exists in the data store or when the data store is not available, 
+and always succeeds otherwise.</t>
 
 <t>The <xref target="RFC5231">"relational" extension</xref> adds a match type called ":count".  The count of an
 extdata test is 0 if the extdata information returned is the empty string, or 1 otherwise.</t>
@@ -188,8 +194,8 @@ if allof (header :is "X-Spam-Status" "Yes",
 ]]></artwork>
 </figure>
 
-<t>The extdata namespace accepts any identifier as variable name. A script MUST NOT 
-fail with an error when a data item is referenced that does not exist in the external
+<t>The extdata namespace accepts any data item name. A script MUST NOT fail with
+an error when a data item is referenced that does not exist in the external
 data store or otherwise cannot be retrieved. In that case the empty string will be 
 substituted, which is analogous to the substitution of unset normal variables. Use
 the extdata test to evaluate wether a data item exists and can be retrieved. 

@@ -2,7 +2,7 @@
 
 
 Pigeonhole Project                                              S. Bosch
-                                                         January 7, 2010
+                                                         January 8, 2010
 
 
              Sieve Email Filtering: External Data Extension
@@ -93,24 +93,28 @@ Bosch                                                           [Page 1]
 
 4.  Naming of Data Items
 
-   In the simplest case the name of a data store item is an identifier
-   as defined in the SIEVE [RFC5228] grammar.  For more complex
-   situations, e.g. when multiple data stores are available, the name
-   can be structured hierarchically just like the namespace syntax
+   In the simplest case, i.e. when the implementation is restricted to
+   only one distinct data store or when the source of the data item has
+   no significance, the name of an external data item MAY be a simple
+   identifier as defined in the SIEVE [RFC5228] grammar.
+
+   When multiple distinct data stores are available, the item name MUST
+   be structured hierarchically just like the variables namespace syntax
    defined in VARIABLES [RFC5229], with the restriction that numeric
-   (num-variable) elements are not allowed.  This yields the following
-   syntax for a data item name:
-
-   data-item-name      =  identifier *("." identifier)
-
-
-
+   (num-variable) elements are not allowed.  The first element of a
+   hierarchical item name identifies the data store and subsequent
+   elements identify the data item within that data store.  This yields
+   the following syntax for a hierarchical data item name:
 
 
 
 Bosch                                                           [Page 2]
 
                       Sieve External Data Extension         January 2010
+
+
+   item-name         =  data-store-name "." identifier *("." identifier)
+   data-store-name   =  identifier
 
 
 5.  Extdata Test
@@ -133,10 +137,10 @@ Bosch                                                           [Page 2]
    scripts to be written that handle nonexistent items gracefully.  In
    particular, the test:
 
-     if extdata :contains "value" "" { ... }
+     if extdata :contains "item" "" { ... }
 
-   only succeeds if "value" exists in the data store, and always
-   succeeds if it is.
+   only fails if the "item" does not exists in the data store or when
+   the data store is not available, and always succeeds otherwise.
 
    The "relational" extension [RFC5231] adds a match type called
    ":count".  The count of an extdata test is 0 if the extdata
@@ -157,10 +161,6 @@ Bosch                                                           [Page 2]
             "${extdata.vacation_message}";
 
    External data items accessed via the extdata test and the extdata
-   variables namespace MUST be one and the same.  The following example
-   scripts are equivalent:
-
-   Example 1:
 
 
 
@@ -168,6 +168,11 @@ Bosch                                                           [Page 3]
 
                       Sieve External Data Extension         January 2010
 
+
+   variables namespace MUST be one and the same.  The following example
+   scripts are equivalent:
+
+   Example 1:
 
    require ["fileinto", "variables", "vnd.dovecot.extdata"];
 
@@ -189,13 +194,12 @@ Bosch                                                           [Page 3]
      fileinto "Spam";
    }
 
-   The extdata namespace accepts any identifier as variable name.  A
-   script MUST NOT fail with an error when a data item is referenced
-   that does not exist in the external data store or otherwise cannot be
-   retrieved.  In that case the empty string will be substituted, which
-   is analogous to the substitution of unset normal variables.  Use the
-   extdata test to evaluate wether a data item exists and can be
-   retrieved.
+   The extdata namespace accepts any data item name.  A script MUST NOT
+   fail with an error when a data item is referenced that does not exist
+   in the external data store or otherwise cannot be retrieved.  In that
+   case the empty string will be substituted, which is analogous to the
+   substitution of unset normal variables.  Use the extdata test to
+   evaluate wether a data item exists and can be retrieved.
 
    This extension only concerns the retrieval of external data items and
    therefore it is not possible to assign values to items within the
@@ -213,16 +217,16 @@ Bosch                                                           [Page 3]
 8.  Security Considerations
 
    Administrators should keep in mind that retrieving values from an
-   external data store can reveal more data to a user than strictly
-   allowed when the data store is not queried carefully.
-
-
 
 
 
 Bosch                                                           [Page 4]
 
                       Sieve External Data Extension         January 2010
+
+
+   external data store can reveal more data to a user than strictly
+   allowed when the data store is not queried carefully.
 
 
 9.  Normative References
@@ -247,10 +251,6 @@ Author's Address
    NL
 
    Email: stephan@rename-it.nl
-
-
-
-
 
 
 
