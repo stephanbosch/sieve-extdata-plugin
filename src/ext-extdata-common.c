@@ -57,10 +57,24 @@ void ext_extdata_unload(const struct sieve_extension *ext)
  * Interpreter context
  */
 
-/* FIXME: context not freed fully */
-
 struct ext_extdata_interpreter_context {
 	struct dict *dict;
+};
+
+static void ext_extdata_interpreter_free
+(const struct sieve_extension *ext ATTR_UNUSED,
+	struct sieve_interpreter *interp ATTR_UNUSED, void *context)
+{
+	struct ext_extdata_interpreter_context *ictx = 
+		(struct ext_extdata_interpreter_context *) context;
+
+	dict_deinit(&ictx->dict);
+}
+
+static struct sieve_interpreter_extension extdata_interpreter_extension = {
+	&extdata_extension,
+	NULL,
+	ext_extdata_interpreter_free,
 };
 
 static struct ext_extdata_interpreter_context *
@@ -76,24 +90,31 @@ ext_extdata_interpreter_get_context
 	struct dict *dict;	
 	pool_t pool;
 
-
+	/* If there is already an interpreter context, return it rightaway */
 	if ( ictx != NULL )
 		return ictx;
 
+	/* We cannot access the dict if no URI is configured or when the username is
+	 * not known.
+	 */
 	if ( ext_data == NULL || senv->username == NULL )
 		return NULL;
 
+	/* Initialize the dict */
 	dict = dict_init
 		(ext_data->dict_uri, DICT_DATA_TYPE_STRING, senv->username, PKG_RUNDIR);
 	
-	if ( dict == NULL )
-		return NULL;
-
+	/* Create interpreter context */
 	pool = sieve_interpreter_pool(renv->interp);
 	ictx = p_new(pool, struct ext_extdata_interpreter_context, 1);
 	ictx->dict = dict;
 
-	sieve_interpreter_extension_set_context(renv->interp, ext, ictx);
+	/* Register interpreter extension to deinit the dict when the interpreter
+	 * is freed.
+	 */
+	sieve_interpreter_extension_register
+		(renv->interp, ext, &extdata_interpreter_extension, (void *) ictx);
+
 	return ictx;
 }
 
@@ -112,6 +133,11 @@ const char *ext_extdata_get_value
 
 	if ( ictx == NULL ) {
 		sieve_runtime_trace(renv, "extension is not configured");
+		return NULL;
+	}
+
+	if ( ictx->dict == NULL ) {
+		sieve_runtime_trace(renv, "dict failed to initialize");
 		return NULL;
 	}
 
