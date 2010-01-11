@@ -12,7 +12,7 @@ endif
 
 if HAVE_TESTSUITE
 
-TESTSUITE_BIN = $(sieve_testsuite) -P src/.libs/sieve_extdata
+TESTSUITE_BIN = $(PIGEONHOLE_TESTSUITE) -P src/.libs/sieve_extdata
 
 if TESTSUITE_VALGRIND
 TEST_BIN = valgrind -q --error-exitcode=1 --show-reachable=yes --leak-check=full $(TESTSUITE_BIN)
