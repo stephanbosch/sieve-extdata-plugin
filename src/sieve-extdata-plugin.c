@@ -11,14 +11,14 @@
  * Sieve plugin interface
  */
 
-void sieve_extdata_plugin_load(struct sieve_instance *svinst)
+void sieve_extdata_plugin_load(struct sieve_instance *svinst, void **context)
 {
-	(void)sieve_extension_register(svinst, &extdata_extension, TRUE);
+	*context = (void *)sieve_extension_register(svinst, &extdata_extension, TRUE);
 }
 
-void sieve_extdata_plugin_unload(struct sieve_instance *svinst ATTR_UNUSED)
+void sieve_extdata_plugin_unload(struct sieve_instance *svinst ATTR_UNUSED, void *context)
 {
-	/* Nothing */
+	sieve_extension_unregister((const struct sieve_extension *)context);
 }
 
 /*

@@ -8,8 +8,8 @@
  * Plugin interface
  */
 
-void sieve_extdata_plugin_load(struct sieve_instance *svinst);
-void sieve_extdata_plugin_unload(struct sieve_instance *svinst);
+void sieve_extdata_plugin_load(struct sieve_instance *svinst, void **context);
+void sieve_extdata_plugin_unload(struct sieve_instance *svinst, void *context);
 
 /*
  * Module interface
