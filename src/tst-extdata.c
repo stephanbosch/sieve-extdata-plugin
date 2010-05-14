@@ -114,9 +114,9 @@ static bool tst_extdata_validate
  */
 
 static bool tst_extdata_generate
-	(const struct sieve_codegen_env *cgenv, struct sieve_command *cmd) 
+(const struct sieve_codegen_env *cgenv, struct sieve_command *cmd) 
 {
-	sieve_operation_emit(cgenv->sbin, cmd->ext, &tst_extdata_operation);
+	sieve_operation_emit(cgenv->sblock, cmd->ext, &tst_extdata_operation);
 
  	/* Generate arguments */
 	if ( !sieve_generate_arguments(cgenv, cmd, NULL) )

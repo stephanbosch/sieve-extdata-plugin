@@ -98,8 +98,8 @@ bool vnspc_sieve_extdata_generate
 	ext_data = (struct ext_extdata_context *) this_ext->context;
 
 	sieve_variables_opr_namespace_variable_emit
-		(cgenv->sbin, ext_data->var_ext, this_ext, &extdata_namespace);
-	sieve_binary_emit_cstring(cgenv->sbin, variable);
+		(cgenv->sblock, ext_data->var_ext, this_ext, &extdata_namespace);
+	sieve_binary_emit_cstring(cgenv->sblock, variable);
 
 	return TRUE;
 }
@@ -113,7 +113,7 @@ bool vnspc_sieve_extdata_read_variable
 	string_t *var_name;
 	const char *ext_value;
 
-	if ( !sieve_binary_read_string(renv->sbin, address, &var_name) )
+	if ( !sieve_binary_read_string(renv->sblock, address, &var_name) )
 		return FALSE;
 
 	if ( str_r !=  NULL ) {
@@ -135,7 +135,7 @@ bool vnspc_sieve_extdata_dump_variable
 {
 	string_t *var_name;
 
-	if ( !sieve_binary_read_string(denv->sbin, address, &var_name) )
+	if ( !sieve_binary_read_string(denv->sblock, address, &var_name) )
 		return FALSE;
 
 	if ( field_name != NULL )

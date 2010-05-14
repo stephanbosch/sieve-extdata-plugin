@@ -92,7 +92,7 @@ else
   AC_MSG_ERROR([pigeonhole not found])
 fi
 
-AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "$sieve_testsuite")
+AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "$PIGEONHOLE_TESTSUITE")
 
 pigeonhole_incdir="$pigeonholedir"
 
