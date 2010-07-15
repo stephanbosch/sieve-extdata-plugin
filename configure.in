@@ -1,5 +1,6 @@
 AC_INIT([Pigeonhole Sieve Extdata plugin], [0.1.0], [dovecot@dovecot.org], [pigeonhole-sieve-extdata])
 AC_CONFIG_SRCDIR([src])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([no-define foreign])
 
@@ -18,109 +19,13 @@ AM_MAINTAINER_MODE
 
 AC_PROG_LIBTOOL
 
-AC_ARG_WITH(dovecot,
-[  --with-dovecot[=DIR]    Dovecot base directory (../)],
-	dovecotdir="$withval",
-	dovecotdir=../dovecot-1.2
-)
-
-AC_ARG_WITH(pigeonhole,
-[  --with-pigeonhole[=DIR]    Pigeonhole base directory (../)],
-	pigeonholedir="$withval",
-	pigeonholedir=../dovecot-1.2-sieve
-)
-
-top=`pwd`
-cd $dovecotdir
-dovecotdir=`pwd`
-cd $top
-cd $pigeonholedir
-pigeonholedir=`pwd`
-cd $top
-AC_SUBST(dovecotdir)
-AC_SUBST(pigeonholedir)
-
-if ! test -f "$dovecotdir/dovecot-config"; then
-  echo
-  echo "dovecot-config not found from $dovecotdir, use --with-dovecot=PATH"
-  echo "to give path to compiled Dovecot sources or to a directory with the"
-  echo "installed dovecot-config file."
-  AC_MSG_ERROR([dovecot-config not found])
-fi
-
-if test -d "$dovecotdir/src"; then
-  # compiling against sources
-  have_dovecot_sources=yes
-else
-  # compiling against installed headers
-  have_dovecot_sources=no
-fi
-AM_CONDITIONAL(HAVE_DOVECOT_SOURCES, test "$have_dovecot_sources" = "yes")
-
-dnl replace relative ../ paths in the file with full paths
-eval `cat $dovecotdir/dovecot-config|sed 's,\$(top_builddir)/,$dovecotdir/,g'`
-
-if test $have_dovecot_sources = yes; then
-  dovecot_incdir="$dovecotdir"
-fi
-
-if test -d "$dovecot_incdir/src"; then
-  LIBDOVECOT_INCLUDE='-I$(dovecot_incdir) -I$(dovecot_incdir)/src/lib -I$(dovecot_incdir)/src/lib-dict -I$(dovecot_incdir)/src/lib-storage -I$(dovecot_incdir)/src/lib-mail'
-else
-  LIBDOVECOT_INCLUDE='-I$(dovecot_incdir)'
-fi
-
-PIGEONHOLE_TESTSUITE=
-if test -f "$pigeonholedir/src/lib-sieve/sieve.h"; then
-  pigeonhole_incdir="$pigeonholedir"
-  LIBSIEVE_INCLUDE='-I$(pigeonhole_incdir) -I$(pigeonhole_incdir)/src/lib-sieve -I$(pigeonholedir)/src/lib-sieve/plugins/variables'
-  if test -f "$pigeonholedir/src/testsuite/testsuite"; then
-    PIGEONHOLE_TESTSUITE="${pigeonholedir}/src/testsuite/testsuite"
-  fi
-elif (test -f "$pigeonholedir/sieve.h") && (test -f "$pigeonholedir/sieve-ext-variables.h"); then
-  pigeonhole_incdir="$pigeonholedir"
-  LIBSIEVE_INCLUDE='-I$(pigeonhole_incdir)'
-elif (test $have_dovecot_libs = no) && (test -f "$dovecot_incdir/sieve/sieve.h"); then
-  pigeonhole_incdir="$(dovecot_incdir)/sieve"
-  LIBSIEVE_INCLUDE='-I$(pigeonhole_incdir)'
-else
-  echo
-  echo "Pigeonhole Sieve headers not found from $pigeonholedir and "
-  echo "they are not installed in the Dovecot include path, use "
-  echo "--with-pigeonhole=PATH to give path to Pigeonhole sources "
-  echo "or installed headers."
-  AC_MSG_ERROR([pigeonhole not found])
-fi
-
-AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "$PIGEONHOLE_TESTSUITE")
-
-pigeonhole_incdir="$pigeonholedir"
-
-AC_ARG_ENABLE(valgrind,
-[AC_HELP_STRING([--enable-valgrind], [Enable Valgrind memory leak checks in testsuite [default=no]])],
-    if test x$enableval = xno || test x$enableval = xauto; then
-        want_valgrind=$enableval
-    else
-        want_valgrind=yes
-    fi,
-    want_valgrind=no)
-AM_CONDITIONAL(TESTSUITE_VALGRIND, test "$want_valgrind" = "yes")
-
-AM_CONDITIONAL(HAVE_TESTSUITE, ! test -z "${PIGEONHOLE_TESTSUITE}")
-
-AC_SUBST(STORAGE_LIBS)
-AC_SUBST(LIBICONV)
-AC_SUBST(RAND_LIBS)
-AC_SUBST(MODULE_LIBS)
-AC_SUBST(dovecot_incdir)
-AC_SUBST(moduledir)
-AC_SUBST(pigeonhole_incdir)
-
+DC_DOVECOT
+LIBDOVECOT_INCLUDE="$LIBDOVECOT_INCLUDE $LIBDOVECOT_STORAGE_INCLUDE"
+CFLAGS="$DOVECOT_CFLAGS"
+LIBS="$DOVECOT_LIBS"
 AC_SUBST(LIBDOVECOT_INCLUDE)
-AC_SUBST(LIBDOVECOT_STORAGE_INCLUDE)
-AC_SUBST(LIBSIEVE_INCLUDE)
-AC_SUBST(PIGEONHOLE_TESTSUITE)
 
+DC_PIGEONHOLE
 
 AC_CONFIG_FILES([
 Makefile

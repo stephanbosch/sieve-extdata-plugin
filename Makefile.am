@@ -1,5 +1,7 @@
 SUBDIRS = src
 
+ACLOCAL_AMFLAGS = -I m4
+
 EXTRA_DIST = \
 	COPYING.LGPL \
 	ChangeLog \
@@ -10,11 +12,11 @@ ChangeLog: .hg/dirstate
 	hg log --style=changelog > ChangeLog
 endif
 
-if HAVE_TESTSUITE
+if PIGEONHOLE_TESTSUITE_AVAILABLE
 
 TESTSUITE_BIN = $(PIGEONHOLE_TESTSUITE) -P src/.libs/sieve_extdata
 
-if TESTSUITE_VALGRIND
+if PIGEONHOLE_TESTSUITE_VALGRIND
 TEST_BIN = valgrind -q --error-exitcode=1 --show-reachable=yes --leak-check=full $(TESTSUITE_BIN)
 else
 TEST_BIN = $(TESTSUITE_BIN)
@@ -33,6 +35,6 @@ test: $(test_cases)
 else
 
 test:
-	@echo "Sieve test suite not compiled."
+	@echo "Pigeonhole test suite not compiled."
 
 endif
