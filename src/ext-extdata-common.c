@@ -132,12 +132,12 @@ const char *ext_extdata_get_value
 	const char *value = NULL;
 
 	if ( ictx == NULL ) {
-		sieve_runtime_trace(renv, "extension is not configured");
+		sieve_runtime_trace_error(renv, "extension is not configured");
 		return NULL;
 	}
 
 	if ( ictx->dict == NULL ) {
-		sieve_runtime_trace(renv, "dict failed to initialize");
+		sieve_runtime_trace_error(renv, "dict failed to initialize");
 		return NULL;
 	}
 

@@ -156,7 +156,7 @@ static bool tst_extdata_operation_dump
 static int tst_extdata_operation_execute
 (const struct sieve_runtime_env *renv, sieve_size_t *address)
 {
-	const struct sieve_extension *this_ext = renv->oprtn.ext;
+	const struct sieve_extension *this_ext = renv->oprtn->ext;
 	int ret, mret;
 	bool result = TRUE;
 	int opt_code = 0;
@@ -175,9 +175,9 @@ static int tst_extdata_operation_execute
 	 */
 	
 	/* Handle match-type and comparator operands */
-	if ( (ret=sieve_match_read_optional_operands
-		(renv, address, &opt_code, &cmp, &mcht)) <= 0 )
-		return ret;
+	if ( (ret=sieve_match_opr_optional_read
+        (renv, address, &opt_code, &cmp, &mcht)) < 0 )
+        return SIEVE_EXEC_BIN_CORRUPT;
 	
 	/* Check whether we neatly finished the list of optional operands*/
 	if ( opt_code != SIEVE_MATCH_OPT_END) {
@@ -186,22 +186,19 @@ static int tst_extdata_operation_execute
 	}
 
 	/* Read source */
-	if ( !sieve_opr_string_read(renv, address, &name) ) {
-		sieve_runtime_trace_error(renv, "invalid name operand");
+	if ( !sieve_opr_string_read(renv, address, "name", &name) )
 		return SIEVE_EXEC_BIN_CORRUPT;
-	}
 	
 	/* Read key-list */
-	if ( (key_list=sieve_opr_stringlist_read(renv, address)) == NULL ) {
-		sieve_runtime_trace_error(renv, "invalid key-list operand");
+	if ( (key_list=sieve_opr_stringlist_read(renv, address, "key-list"))
+		== NULL )
 		return SIEVE_EXEC_BIN_CORRUPT;
-	}
 
 	/*
 	 * Perform operation
 	 */
 
-	sieve_runtime_trace(renv, "DICT test");
+	sieve_runtime_trace(renv, SIEVE_TRLVL_TESTS, "extdata test");
 
 	ext_value = ext_extdata_get_value(renv, this_ext, str_c(name));
 
