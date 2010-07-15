@@ -138,8 +138,8 @@ static bool tst_extdata_operation_dump
 	sieve_code_descend(denv);
 
 	/* Handle any optional arguments */
-	if ( !sieve_match_dump_optional_operands(denv, address, &opt_code) )
-		return FALSE;
+	 if ( sieve_match_opr_optional_dump(denv, address, &opt_code) != 0 )
+        return FALSE;
 
 	if ( opt_code != SIEVE_MATCH_OPT_END )
 		return FALSE;
@@ -203,7 +203,7 @@ static int tst_extdata_operation_execute
 	ext_value = ext_extdata_get_value(renv, this_ext, str_c(name));
 
 	if ( ext_value != NULL ) {
-		mctx = sieve_match_begin(renv->interp, &mcht, &cmp, NULL, key_list); 	
+		mctx = sieve_match_begin(renv, &mcht, &cmp, NULL, key_list); 	
 
 		if ( (mret=sieve_match_value(mctx, strlen(ext_value) == 0 ? NULL : ext_value, 
 			strlen(ext_value))) < 0 ) {
