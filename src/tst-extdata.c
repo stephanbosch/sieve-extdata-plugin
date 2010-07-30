@@ -3,6 +3,7 @@
 
 #include "sieve-common.h"
 #include "sieve-commands.h"
+#include "sieve-stringlist.h"
 #include "sieve-code.h"
 #include "sieve-comparators.h"
 #include "sieve-match-types.h"
@@ -157,18 +158,15 @@ static int tst_extdata_operation_execute
 (const struct sieve_runtime_env *renv, sieve_size_t *address)
 {
 	const struct sieve_extension *this_ext = renv->oprtn->ext;
-	int ret, mret;
-	bool result = TRUE;
+	int ret;
 	int opt_code = 0;
 	struct sieve_match_type mcht = 
 		SIEVE_MATCH_TYPE_DEFAULT(is_match_type);
 	struct sieve_comparator cmp = 
 		SIEVE_COMPARATOR_DEFAULT(i_ascii_casemap_comparator);
-	struct sieve_match_context *mctx;
 	string_t *name;
-	struct sieve_coded_stringlist *key_list;
+	struct sieve_stringlist *value_list, *key_list;
 	const char *ext_value = NULL;
-	bool matched = FALSE;
 
 	/*
 	 * Read operands 
@@ -200,29 +198,25 @@ static int tst_extdata_operation_execute
 
 	sieve_runtime_trace(renv, SIEVE_TRLVL_TESTS, "extdata test");
 
+	/* Get external value */
 	ext_value = ext_extdata_get_value(renv, this_ext, str_c(name));
 
+	/* Perform match */
 	if ( ext_value != NULL ) {
-		mctx = sieve_match_begin(renv, &mcht, &cmp, NULL, key_list); 	
+		/* Create value stringlist */
+		value_list = sieve_single_stringlist_create_cstr(renv, ext_value, FALSE);
 
-		if ( (mret=sieve_match_value(mctx, strlen(ext_value) == 0 ? NULL : ext_value, 
-			strlen(ext_value))) < 0 ) {
-			result = FALSE;
-		} else {
-			matched = ( mret > 0 );				
-		}
-
-		if ( (mret=sieve_match_end(&mctx)) < 0 )
-			result = FALSE;
-		else
-			matched = ( mret > 0 || matched );
+		/* Perform match */
+		ret = sieve_match(renv, &mcht, &cmp, value_list, key_list); 	
+	} else {
+		ret = 0;
 	}
 	
-	if ( result ) {
-		sieve_interpreter_set_test_result(renv->interp, matched);
+	if ( ret >= 0 ) {
+		sieve_interpreter_set_test_result(renv->interp, ret > 0);
 		return SIEVE_EXEC_OK;
 	}
 	
-	sieve_runtime_trace_error(renv, "invalid key list item");
+	sieve_runtime_trace_error(renv, "invalid string list item");
 	return SIEVE_EXEC_BIN_CORRUPT;
 }
