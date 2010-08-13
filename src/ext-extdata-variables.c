@@ -24,21 +24,21 @@ bool vnspc_sieve_extdata_generate
 	(const struct sieve_codegen_env *cgenv,
 		const struct sieve_variables_namespace *nspc,
 		struct sieve_ast_argument *arg, struct sieve_command *cmd, void *var_data);
-bool vnspc_sieve_extdata_read_variable
-	(const struct sieve_runtime_env *renv,
-		const struct sieve_variables_namespace *nspc, sieve_size_t *address,
-		string_t **str_r);
 bool vnspc_sieve_extdata_dump_variable
 	(const struct sieve_dumptime_env *denv,
-		const struct sieve_variables_namespace *nspc, sieve_size_t *address,
-		const char *field_name);
+		const struct sieve_variables_namespace *nspc, 
+		const struct sieve_operand *oprnd, sieve_size_t *address);
+int vnspc_sieve_extdata_read_variable
+	(const struct sieve_runtime_env *renv,
+		const struct sieve_variables_namespace *nspc,
+		const struct sieve_operand *oprnd, sieve_size_t *address, string_t **str_r);
 
 static const struct sieve_variables_namespace_def extdata_namespace = {
 	SIEVE_OBJECT("extdata", &extdata_namespace_operand, 0),
 	vnspc_sieve_extdata_validate,
 	vnspc_sieve_extdata_generate,
-	vnspc_sieve_extdata_read_variable,
-	vnspc_sieve_extdata_dump_variable
+	vnspc_sieve_extdata_dump_variable,
+	vnspc_sieve_extdata_read_variable
 };
 
 bool vnspc_sieve_extdata_validate
@@ -104,49 +104,54 @@ bool vnspc_sieve_extdata_generate
 	return TRUE;
 }
 
-bool vnspc_sieve_extdata_read_variable
-(const struct sieve_runtime_env *renv,
-	const struct sieve_variables_namespace *nspc, sieve_size_t *address,
-	string_t **str_r)
-{
-	const struct sieve_extension *this_ext = SIEVE_OBJECT_EXTENSION(nspc);	
-	string_t *var_name;
-	const char *ext_value;
-
-	if ( !sieve_binary_read_string(renv->sblock, address, &var_name) )
-		return FALSE;
-
-	if ( str_r !=  NULL ) {
-		ext_value=ext_extdata_get_value(renv, this_ext, str_c(var_name));
-		if ( ext_value == NULL ) {
-			*str_r = t_str_new_const("", 0);
-			return TRUE;
-		}
-
-		*str_r = t_str_new_const(ext_value, strlen(ext_value));
-	}
-	return TRUE;
-}
-
 bool vnspc_sieve_extdata_dump_variable
 (const struct sieve_dumptime_env *denv,
-	const struct sieve_variables_namespace *nspc ATTR_UNUSED, 
-	sieve_size_t *address, const char *field_name)
+	const struct sieve_variables_namespace *nspc ATTR_UNUSED,
+	const struct sieve_operand *oprnd, sieve_size_t *address)
 {
 	string_t *var_name;
 
 	if ( !sieve_binary_read_string(denv->sblock, address, &var_name) )
 		return FALSE;
 
-	if ( field_name != NULL )
+	if ( oprnd->field_name != NULL )
 		sieve_code_dumpf(denv, "%s: VAR ${extdata.%s}",
-			field_name, str_c(var_name));
+			oprnd->field_name, str_c(var_name));
 	else
 		sieve_code_dumpf(denv, "VAR ${extdata.%s}",
 			str_c(var_name));
 
 	return TRUE;
 }
+
+int vnspc_sieve_extdata_read_variable
+(const struct sieve_runtime_env *renv,
+	const struct sieve_variables_namespace *nspc,
+	const struct sieve_operand *oprnd, sieve_size_t *address,
+	string_t **str_r)
+{
+	const struct sieve_extension *this_ext = SIEVE_OBJECT_EXTENSION(nspc);	
+	string_t *var_name;
+	const char *ext_value;
+
+	if ( !sieve_binary_read_string(renv->sblock, address, &var_name) ) {
+		sieve_runtime_trace_operand_error(renv, oprnd,
+			"extdata variable operand corrupt: invalid name");
+		return SIEVE_EXEC_BIN_CORRUPT;
+	}
+
+	if ( str_r !=  NULL ) {
+		ext_value=ext_extdata_get_value(renv, this_ext, str_c(var_name));
+		if ( ext_value == NULL ) {
+			*str_r = t_str_new_const("", 0);
+			return SIEVE_EXEC_OK;
+		}
+
+		*str_r = t_str_new_const(ext_value, strlen(ext_value));
+	}
+	return SIEVE_EXEC_OK;
+}
+
 
 /*
  * Namespace registration
