@@ -1,4 +1,4 @@
-/* Copyright (c) 2002-2010 Dovecot Sieve authors, see the included COPYING file
+/* Copyright (c) 2002-2010 Sieve Extdata plugin authors, see the included COPYING file
  */
 
 /* Extension vnd.dovecot.extdata
