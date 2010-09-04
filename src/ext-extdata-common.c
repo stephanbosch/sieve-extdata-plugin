@@ -31,7 +31,8 @@ bool ext_extdata_load(const struct sieve_extension *ext, void **context)
 
 	dict_uri = sieve_setting_get(ext->svinst, "sieve_extdata_dict_uri");
 	if ( dict_uri == NULL ) {
-		sieve_sys_warning("extdata: no dict uri specified, extension is unconfigured "
+		sieve_sys_warning(ext->svinst, 
+			"extdata: no dict uri specified, extension is unconfigured "
 			"(sieve_extdata_dict_uri is not set).");
 	}
 
@@ -90,7 +91,7 @@ ext_extdata_interpreter_get_context
 		(struct ext_extdata_interpreter_context *)
 		sieve_interpreter_extension_get_context(renv->interp, ext);
 	const struct sieve_script_env *senv = renv->scriptenv;
-	struct dict *dict;	
+	struct dict *dict;
 	pool_t pool;
 
 	/* If there is already an interpreter context, return it rightaway */
@@ -106,7 +107,12 @@ ext_extdata_interpreter_get_context
 	/* Initialize the dict */
 	dict = dict_init
 		(ext_data->dict_uri, DICT_DATA_TYPE_STRING, senv->username, PKG_RUNDIR);
-	
+
+	if ( dict == NULL ) {
+		sieve_sys_error(renv->svinst, "sieve extdata: failed to initialize dict %s",
+			ext_data->dict_uri);
+	}
+
 	/* Create interpreter context */
 	pool = sieve_interpreter_pool(renv->interp);
 	ictx = p_new(pool, struct ext_extdata_interpreter_context, 1);
@@ -140,7 +146,9 @@ const char *ext_extdata_get_value
 	}
 
 	if ( ictx->dict == NULL ) {
-		sieve_runtime_trace_error(renv, "dict failed to initialize");
+		sieve_runtime_error(renv, NULL,
+			"failed to retrieve external data item %s due to internal error "
+			"(refer to server log for more information).", identifier);
 		return NULL;
 	}
 

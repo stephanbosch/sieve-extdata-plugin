@@ -2,8 +2,8 @@ require "vnd.dovecot.testsuite";
 require "vnd.dovecot.extdata";
 require "variables";
 
-test_config :set "sieve_extdata_dict_uri" "file:tests/values.dict";
-test_config :reload "vnd.dovecot.extdata";
+test_config_set "sieve_extdata_dict_uri" "file:tests/values.dict";
+test_config_reload :extension "vnd.dovecot.extdata";
 
 test "Name" {
 	if not extdata :is "name" "Irvin D. Iot" {
