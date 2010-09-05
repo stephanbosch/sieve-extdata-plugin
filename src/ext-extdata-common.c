@@ -109,8 +109,9 @@ ext_extdata_interpreter_get_context
 		(ext_data->dict_uri, DICT_DATA_TYPE_STRING, senv->username, PKG_RUNDIR);
 
 	if ( dict == NULL ) {
-		sieve_sys_error(renv->svinst, "sieve extdata: failed to initialize dict %s",
-			ext_data->dict_uri);
+		sieve_runtime_critical(renv, NULL,
+			"failed to retrieve external data item",
+			"sieve extdata: failed to initialize dict %s", ext_data->dict_uri);
 	}
 
 	/* Create interpreter context */
@@ -145,12 +146,8 @@ const char *ext_extdata_get_value
 		return NULL;
 	}
 
-	if ( ictx->dict == NULL ) {
-		sieve_runtime_error(renv, NULL,
-			"failed to retrieve external data item %s due to internal error "
-			"(refer to server log for more information).", identifier);
+	if ( ictx->dict == NULL )
 		return NULL;
-	}
 
 	key = t_strconcat("priv/", identifier, NULL);
 
