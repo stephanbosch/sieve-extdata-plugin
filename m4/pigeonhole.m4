@@ -56,7 +56,10 @@ AC_DEFUN([DC_PIGEONHOLE],[
 	want_valgrind=no)
 	AM_CONDITIONAL(PIGEONHOLE_TESTSUITE_VALGRIND, test "$want_valgrind" = "yes")
 
+	sieve_plugindir="$dovecot_moduledir/sieve"
+
 	AC_SUBST(pigeonhole_incdir)
+	AC_SUBST(sieve_plugindir)
 
 	AC_SUBST(LIBSIEVE_INCLUDE)
 	AC_SUBST(PIGEONHOLE_TESTSUITE)
