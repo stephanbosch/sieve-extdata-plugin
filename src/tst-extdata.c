@@ -31,15 +31,16 @@ static bool tst_extdata_validate
 static bool tst_extdata_generate
 	(const struct sieve_codegen_env *cgenv, struct sieve_command *cmd);
 
-const struct sieve_command_def tst_extdata = { 
-	"extdata", 
-	SCT_TEST, 
+const struct sieve_command_def tst_extdata = {
+	"extdata",
+	SCT_TEST,
 	2, 0, FALSE, FALSE,
-	tst_extdata_registered, 
+	tst_extdata_registered,
 	NULL,
-	tst_extdata_validate, 
-	tst_extdata_generate, 
-	NULL 
+	tst_extdata_validate,
+	NULL,
+	tst_extdata_generate,
+	NULL
 };
 
 /* 
