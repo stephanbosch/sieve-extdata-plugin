@@ -85,6 +85,7 @@ static struct ext_extdata_interpreter_context *
 ext_extdata_interpreter_get_context
 (const struct sieve_extension *ext, const struct sieve_runtime_env *renv)
 {
+	struct sieve_instance *svinst = ext->svinst;
 	struct ext_extdata_context *ext_data =
 		(struct ext_extdata_context *) ext->context;
 	struct ext_extdata_interpreter_context *ictx = 
@@ -101,12 +102,12 @@ ext_extdata_interpreter_get_context
 	/* We cannot access the dict if no URI is configured or when the username is
 	 * not known.
 	 */
-	if ( ext_data == NULL || senv->username == NULL )
+	if ( ext_data == NULL || svinst->username == NULL )
 		return NULL;
 
 	/* Initialize the dict */
 	dict = dict_init
-		(ext_data->dict_uri, DICT_DATA_TYPE_STRING, senv->username, PKG_RUNDIR);
+		(ext_data->dict_uri, DICT_DATA_TYPE_STRING, svinst->username, PKG_RUNDIR);
 
 	if ( dict == NULL ) {
 		sieve_runtime_critical(renv, NULL,
