@@ -1,10 +1,12 @@
-/* Copyright (c) 2002-2010 Sieve Extdata plugin authors, see the included COPYING file 
+/* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
+   COPYING file 
  */
 
 #ifndef __EXT_EXTDATA_COMMON_H
 #define __EXT_EXTDATA_COMMON_H
 
 #include "sieve-common.h"
+#include "sieve-extdata-config.h"
 
 /*
  * Extension

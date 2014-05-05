@@ -1,4 +1,5 @@
-/* Copyright (c) 2002-2010 Sieve Extdata plugin authors, see the included COPYING file 
+/* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
+   COPYING file 
  */
 
 #include "lib.h"

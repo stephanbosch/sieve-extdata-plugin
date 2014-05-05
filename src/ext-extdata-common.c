@@ -1,4 +1,5 @@
-/* Copyright (c) 2002-2010 Sieve Extdata plugin authors, see the included COPYING file 
+/* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
+   COPYING file 
  */
 
 #include "lib.h"
@@ -72,7 +73,8 @@ static void ext_extdata_interpreter_free
 	struct ext_extdata_interpreter_context *ictx = 
 		(struct ext_extdata_interpreter_context *) context;
 
-	dict_deinit(&ictx->dict);
+	if (ictx->dict != NULL)
+		dict_deinit(&ictx->dict);
 }
 
 static struct sieve_interpreter_extension extdata_interpreter_extension = {
@@ -91,9 +93,10 @@ ext_extdata_interpreter_get_context
 	struct ext_extdata_interpreter_context *ictx = 
 		(struct ext_extdata_interpreter_context *)
 		sieve_interpreter_extension_get_context(renv->interp, ext);
-	const struct sieve_script_env *senv = renv->scriptenv;
-	struct dict *dict;
+	const char *error;
+	struct dict *dict = NULL;
 	pool_t pool;
+	int ret;
 
 	/* If there is already an interpreter context, return it rightaway */
 	if ( ictx != NULL )
@@ -106,13 +109,13 @@ ext_extdata_interpreter_get_context
 		return NULL;
 
 	/* Initialize the dict */
-	dict = dict_init
-		(ext_data->dict_uri, DICT_DATA_TYPE_STRING, svinst->username, PKG_RUNDIR);
-
-	if ( dict == NULL ) {
+	ret = dict_init(ext_data->dict_uri, DICT_DATA_TYPE_STRING, svinst->username,
+		svinst->base_dir, &dict, &error);
+	if ( ret < 0 ) {
 		sieve_runtime_critical(renv, NULL,
-			"failed to retrieve external data item",
-			"sieve extdata: failed to initialize dict %s", ext_data->dict_uri);
+			"failed to initialize vnd.dovecot.extdata extension",
+			"sieve dict backend: failed to initialize dict with data `%s' "
+			"for user `%s': %s", ext_data->dict_uri, svinst->username, error);
 	}
 
 	/* Create interpreter context */
@@ -141,19 +144,27 @@ const char *ext_extdata_get_value
 		ext_extdata_interpreter_get_context(this_ext, renv);
 	const char *key;
 	const char *value = NULL;
+	int ret;
 
 	if ( ictx == NULL ) {
 		sieve_runtime_trace_error(renv, "extension is not configured");
 		return NULL;
 	}
 
-	if ( ictx->dict == NULL )
+	if ( ictx->dict == NULL ) {
+		sieve_runtime_trace_error(renv, "extension is not properly configured");
 		return NULL;
+	}
 
 	key = t_strconcat("priv/", identifier, NULL);
 
-	if ( dict_lookup(ictx->dict, pool_datastack_create(), key, &value) <= 0 )
+	if ( (ret=dict_lookup(ictx->dict,
+		pool_datastack_create(), key, &value)) <= 0 ) {
+		if (ret < 0)
+			sieve_runtime_warning(renv, NULL,
+				"extdata: failed to lookup value `%s'", identifier);
 		return NULL;
+	}
 
 	return value;
 }

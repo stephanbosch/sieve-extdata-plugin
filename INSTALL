@@ -24,8 +24,8 @@ configure needs to be executed with the following parameters:
 
 For example, when compiling against sources:
 
-./configure --with-dovecot=../dovecot-1.2 \
-  --with-pigeonhole=../dovecot-1.2-sieve
+./configure --with-dovecot=../dovecot-2.2 \
+  --with-pigeonhole=../dovecot-2.2-pigeonhole
 
 Or when compiling against a Dovecot installation:
 

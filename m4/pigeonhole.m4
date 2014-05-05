@@ -1,20 +1,17 @@
 # pigeonhole.m4 - Check presence of pigeonhole -*-Autoconf-*-
-#
-# Current implementation is ugly and needs improvement
+#.
+
+# serial 1
 
 AC_DEFUN([DC_PIGEONHOLE],[
-	DC_DOVECOT
-	DC_DOVECOT_MODULEDIR
-
-	LIBDOVECOT_INCLUDE="$LIBDOVECOT_INCLUDE $LIBDOVECOT_STORAGE_INCLUDE"
-	CFLAGS="$DOVECOT_CFLAGS"
-	LIBS="$DOVECOT_LIBS"
-	AC_SUBST(LIBDOVECOT_INCLUDE)
-
 	AC_ARG_WITH(pigeonhole,
 	[  --with-pigeonhole=DIR   Pigeonhole base directory],
 	pigeonholedir="$withval",
-	pigeonholedir="$dovecot_pkgincludedir/sieve"
+	[
+		pg_prefix=$prefix
+		test "x$pg_prefix" = xNONE && pg_prefix=$ac_default_prefix
+		pigeonholedir="$pg_prefix/include/dovecot/sieve"
+	]
 	)
 
 	AC_MSG_CHECKING([for pigeonhole in "$pigeonholedir"])
@@ -32,9 +29,10 @@ AC_DEFUN([DC_PIGEONHOLE],[
 		LIBSIEVE_INCLUDE='\
 			-I$(pigeonhole_incdir) \
 			-I$(pigeonhole_incdir)/src/lib-sieve \
-			-I$(pigeonholedir)/src/lib-sieve/plugins/copy \
-			-I$(pigeonholedir)/src/lib-sieve/plugins/enotify \
-			-I$(pigeonholedir)/src/lib-sieve/plugins/variables'
+			-I$(pigeonhole_incdir)/src/lib-sieve/util \
+			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/copy \
+			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/enotify \
+			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/variables'
 		if test -f "$pigeonholedir/src/testsuite/testsuite"; then
 			PIGEONHOLE_TESTSUITE="${pigeonholedir}/src/testsuite/testsuite"
   		fi
@@ -50,6 +48,8 @@ AC_DEFUN([DC_PIGEONHOLE],[
  			to give path to Pigeonhole sources or installed headers.])
 		AC_MSG_ERROR([pigeonhole not found])
 	fi
+
+	DISTCHECK_CONFIGURE_FLAGS="$DISTCHECK_CONFIGURE_FLAGS --with-pigeonhole=$pigeonholedir"
 	
 	AM_CONDITIONAL(PIGEONHOLE_TESTSUITE_AVAILABLE, ! test -z "$PIGEONHOLE_TESTSUITE")
 
