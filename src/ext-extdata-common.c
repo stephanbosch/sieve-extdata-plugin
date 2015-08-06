@@ -1,4 +1,4 @@
-/* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
+	/* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
    COPYING file 
  */
 
@@ -35,6 +35,7 @@ bool ext_extdata_load(const struct sieve_extension *ext, void **context)
 		sieve_sys_warning(ext->svinst, 
 			"extdata: no dict uri specified, extension is unconfigured "
 			"(sieve_extdata_dict_uri is not set).");
+		return TRUE;
 	}
 
 	ext_data = i_new(struct ext_extdata_context, 1);
