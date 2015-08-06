@@ -35,7 +35,6 @@ bool ext_extdata_load(const struct sieve_extension *ext, void **context)
 		sieve_sys_warning(ext->svinst, 
 			"extdata: no dict uri specified, extension is unconfigured "
 			"(sieve_extdata_dict_uri is not set).");
-		return TRUE;
 	}
 
 	ext_data = i_new(struct ext_extdata_context, 1);
@@ -106,7 +105,7 @@ ext_extdata_interpreter_get_context
 	/* We cannot access the dict if no URI is configured or when the username is
 	 * not known.
 	 */
-	if ( ext_data == NULL || svinst->username == NULL )
+	if ( ext_data == NULL || ext_data->dict_uri == NULL || svinst->username == NULL )
 		return NULL;
 
 	/* Initialize the dict */
