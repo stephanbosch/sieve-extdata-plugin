@@ -1,4 +1,4 @@
-AC_INIT([Pigeonhole Sieve Extdata plugin], [0.1.0], [dovecot@dovecot.org], [pigeonhole-0.4-sieve-extdata])
+AC_INIT([Pigeonhole Sieve Extdata plugin], [0.2.devel], [dovecot@dovecot.org], [pigeonhole-0.6-sieve-extdata])
 AC_CONFIG_SRCDIR([src])
 AC_CONFIG_MACRO_DIR([m4])
 
