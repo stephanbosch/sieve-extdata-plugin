@@ -13,10 +13,10 @@ EXTRA_DIST = \
 dist-hook:
 	rm -rf `find $(distdir)/tests -type f -name '*.svbin'`
 
-if MAINTAINER_MODE
-ChangeLog: .hg/dirstate
-	hg log --style=changelog > ChangeLog
-endif
+ChangeLog:
+	git log --name-status \
+		--pretty="format:%ai %aN <%aE> (%h)%n%n%w(80,4,4)%s%n%n%b" > ChangeLog \
+			|| rm -f ChangeLog
 
 if PIGEONHOLE_TESTSUITE_AVAILABLE
 
