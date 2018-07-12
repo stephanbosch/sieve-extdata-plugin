@@ -20,16 +20,15 @@ ChangeLog:
 
 if PIGEONHOLE_TESTSUITE_AVAILABLE
 
-TESTSUITE_BIN = $(PIGEONHOLE_TESTSUITE) -P src/.libs/sieve_extdata \
+TESTSUITE_PLUGIN = -P src/.libs/sieve_extdata
+
+TESTSUITE_BIN = $(PIGEONHOLE_TESTSUITE) \
+	$(TESTSUITE_PLUGIN) \
 	$(TESTSUITE_OPTIONS)
 
-if PIGEONHOLE_TESTSUITE_VALGRIND
-TEST_BIN = libtool --mode=execute valgrind -q --error-exitcode=1 --show-reachable=yes --leak-check=full $(TESTSUITE_BIN)
-else
-TEST_BIN = $(TESTSUITE_BIN)
-endif
+TEST_BIN = $(RUN_TEST) $(TESTSUITE_BIN)
 
-test_cases = \
+ test_cases = \
 	$(top_srcdir)/tests/extdata-namespace.svtest \
 	$(top_srcdir)/tests/extdata-test.svtest
 

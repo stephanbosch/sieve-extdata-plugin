@@ -1,7 +1,7 @@
 # pigeonhole.m4 - Check presence of pigeonhole -*-Autoconf-*-
 #.
 
-# serial 1
+# serial 5
 
 AC_DEFUN([DC_PIGEONHOLE],[
 	AC_ARG_WITH(pigeonhole,
@@ -32,10 +32,10 @@ AC_DEFUN([DC_PIGEONHOLE],[
 			-I$(pigeonhole_incdir)/src/lib-sieve/util \
 			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/copy \
 			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/enotify \
+			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/imap4flags \
+			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/mailbox \
 			-I$(pigeonhole_incdir)/src/lib-sieve/plugins/variables'
-		if test -f "$pigeonholedir/src/testsuite/testsuite"; then
-			PIGEONHOLE_TESTSUITE="${pigeonholedir}/src/testsuite/testsuite"
-  		fi
+		PIGEONHOLE_TESTSUITE="${pigeonholedir}/src/testsuite/testsuite"
 	elif test -f "$pigeonholedir/sieve.h"; then
 		AC_MSG_RESULT([found])
 		pigeonhole_incdir="$pigeonholedir"
@@ -54,16 +54,6 @@ AC_DEFUN([DC_PIGEONHOLE],[
 	AM_CONDITIONAL(PIGEONHOLE_TESTSUITE_AVAILABLE, ! test -z "$PIGEONHOLE_TESTSUITE")
 
 	pigeonhole_incdir="$pigeonholedir"
-
-	AC_ARG_ENABLE(valgrind,
-	[AC_HELP_STRING([--enable-valgrind], [Enable Valgrind memory leak checks in testsuite [default=no]])],
-	    if test x$enableval = xno || test x$enableval = xauto; then
-    	    want_valgrind=$enableval
-	    else
-    	    want_valgrind=yes
-	    fi,
-	want_valgrind=no)
-	AM_CONDITIONAL(PIGEONHOLE_TESTSUITE_VALGRIND, test "$want_valgrind" = "yes")
 
 	AC_SUBST(pigeonhole_incdir)
 

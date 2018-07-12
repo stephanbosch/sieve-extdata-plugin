@@ -94,6 +94,7 @@ ext_extdata_interpreter_get_context
 		(struct ext_extdata_interpreter_context *)
 		sieve_interpreter_extension_get_context(renv->interp, ext);
 	const char *error;
+	struct dict_settings dict_set;
 	struct dict *dict = NULL;
 	pool_t pool;
 	int ret;
@@ -109,8 +110,10 @@ ext_extdata_interpreter_get_context
 		return NULL;
 
 	/* Initialize the dict */
-	ret = dict_init(ext_data->dict_uri, DICT_DATA_TYPE_STRING, svinst->username,
-		svinst->base_dir, &dict, &error);
+	i_zero(&dict_set);
+	dict_set.username = svinst->username;
+	dict_set.base_dir = svinst->base_dir;
+	ret = dict_init(ext_data->dict_uri, &dict_set, &dict, &error);
 	if ( ret < 0 ) {
 		sieve_runtime_critical(renv, NULL,
 			"failed to initialize vnd.dovecot.extdata extension",
@@ -142,7 +145,7 @@ const char *ext_extdata_get_value
 {
 	struct ext_extdata_interpreter_context *ictx = 
 		ext_extdata_interpreter_get_context(this_ext, renv);
-	const char *key;
+	const char *key, *error;
 	const char *value = NULL;
 	int ret;
 
@@ -159,10 +162,11 @@ const char *ext_extdata_get_value
 	key = t_strconcat("priv/", identifier, NULL);
 
 	if ( (ret=dict_lookup(ictx->dict,
-		pool_datastack_create(), key, &value)) <= 0 ) {
+		pool_datastack_create(), key, &value, &error)) <= 0 ) {
 		if (ret < 0)
 			sieve_runtime_warning(renv, NULL,
-				"extdata: failed to lookup value `%s'", identifier);
+				"extdata: failed to lookup value `%s': %s",
+				identifier, error);
 		return NULL;
 	}
 
