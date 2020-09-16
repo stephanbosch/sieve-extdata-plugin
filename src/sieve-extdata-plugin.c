@@ -28,7 +28,7 @@ void sieve_extdata_plugin_load
 		(svinst, &extdata_extension, FALSE);
 
 	if ( svinst->debug ) {
-		sieve_sys_debug(svinst, "%s version %s loaded",
+		e_debug(svinst->event, "%s version %s loaded",
 			SIEVE_EXTDATA_NAME, SIEVE_EXTDATA_VERSION);
 	}
 
