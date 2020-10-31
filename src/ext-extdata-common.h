@@ -1,7 +1,3 @@
-/* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
-   COPYING file 
- */
-
 #ifndef __EXT_EXTDATA_COMMON_H
 #define __EXT_EXTDATA_COMMON_H
 
@@ -21,12 +17,12 @@ extern const struct sieve_extension_def extdata_extension;
 
 bool ext_extdata_load(const struct sieve_extension *ext, void **context);
 void ext_extdata_unload(const struct sieve_extension *ext);
-bool ext_extdata_interpreter_load
-	(const struct sieve_extension *ext, const struct sieve_runtime_env *renv,
-    	sieve_size_t *address);
+bool ext_extdata_interpreter_load(const struct sieve_extension *ext,
+				  const struct sieve_runtime_env *renv,
+				  sieve_size_t *address);
 
-/* 
- * Commands 
+/*
+ * Commands
  */
 
 extern const struct sieve_command_def tst_extdata;
@@ -47,8 +43,9 @@ extern const struct sieve_operand_def extdata_namespace_operand;
  * Dict lookup
  */
 
-const char *ext_extdata_get_value
-	(const struct sieve_runtime_env *renv, const struct sieve_extension *this_ext,
-    	const char *identifier);
+const char *
+ext_extdata_get_value(const struct sieve_runtime_env *renv,
+		      const struct sieve_extension *this_ext,
+		      const char *identifier);
 
-#endif /* __EXT_EXTDATA_COMMON_H */
+#endif
