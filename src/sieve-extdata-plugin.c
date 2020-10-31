@@ -1,5 +1,5 @@
 /* Copyright (c) 2002-2014 Sieve Extdata plugin authors, see the included
-   COPYING file 
+   COPYING file
  */
 
 #include "sieve-common.h"
@@ -19,29 +19,27 @@ struct _plugin_context {
 
 const char *sieve_extdate_plugin_version = PIGEONHOLE_ABI_VERSION;
 
-void sieve_extdata_plugin_load
-(struct sieve_instance *svinst, void **context)
+void sieve_extdata_plugin_load(struct sieve_instance *svinst, void **context)
 {
 	struct _plugin_context *pctx = i_new(struct _plugin_context, 1);
 
-	pctx->ext_extdata = sieve_extension_register
-		(svinst, &extdata_extension, FALSE);
+	pctx->ext_extdata = sieve_extension_register(svinst, &extdata_extension,
+						     FALSE);
 
-	if ( svinst->debug ) {
+	if (svinst->debug) {
 		sieve_sys_debug(svinst, "%s version %s loaded",
-			SIEVE_EXTDATA_NAME, SIEVE_EXTDATA_VERSION);
+				SIEVE_EXTDATA_NAME, SIEVE_EXTDATA_VERSION);
 	}
 
 	*context = (void *)pctx;
 }
 
-void sieve_extdata_plugin_unload
-(struct sieve_instance *svinst ATTR_UNUSED, void *context)
+void sieve_extdata_plugin_unload(struct sieve_instance *svinst ATTR_UNUSED,
+				 void *context)
 {
 	struct _plugin_context *pctx = (struct _plugin_context *)context;
 
 	sieve_extension_unregister(pctx->ext_extdata);
-
 	i_free(pctx);
 }
 
