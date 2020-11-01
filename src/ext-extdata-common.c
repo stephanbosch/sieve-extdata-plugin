@@ -32,9 +32,9 @@ bool ext_extdata_load(const struct sieve_extension *ext, void **context)
 
 	dict_uri = sieve_setting_get(ext->svinst, "sieve_extdata_dict_uri");
 	if  (dict_uri == NULL) {
-		sieve_sys_warning(ext->svinst, "extdata: "
-			"no dict uri specified, extension is unconfigured "
-			"(sieve_extdata_dict_uri is not set).");
+		e_warning(ext->svinst->event, "extdata: "
+			  "no dict uri specified, extension is unconfigured "
+			  "(sieve_extdata_dict_uri is not set).");
 	}
 
 	ext_data = i_new(struct ext_extdata_context, 1);
