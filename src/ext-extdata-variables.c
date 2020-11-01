@@ -41,10 +41,10 @@ int vnspc_sieve_extdata_read_variable(
 
 static const struct sieve_variables_namespace_def extdata_namespace = {
 	SIEVE_OBJECT("extdata", &extdata_namespace_operand, 0),
-	vnspc_sieve_extdata_validate,
-	vnspc_sieve_extdata_generate,
-	vnspc_sieve_extdata_dump_variable,
-	vnspc_sieve_extdata_read_variable,
+	.validate = vnspc_sieve_extdata_validate,
+	.generate = vnspc_sieve_extdata_generate,
+	.dump_variable = vnspc_sieve_extdata_dump_variable,
+	.read_variable = vnspc_sieve_extdata_read_variable,
 };
 
 bool vnspc_sieve_extdata_validate(
@@ -171,11 +171,11 @@ static const struct sieve_extension_objects extdata_namespaces =
 	SIEVE_VARIABLES_DEFINE_NAMESPACE(extdata_namespace);
 
 const struct sieve_operand_def extdata_namespace_operand = {
-	"extdata-namespace",
-	&extdata_extension,
-	0,
-	&sieve_variables_namespace_operand_class,
-	&extdata_namespaces,
+	.name = "extdata-namespace",
+	.ext_def = &extdata_extension,
+	.code = 0,
+	.class = &sieve_variables_namespace_operand_class,
+	.interface = &extdata_namespaces,
 };
 
 void ext_extdata_variables_init(const struct sieve_extension *this_ext,
