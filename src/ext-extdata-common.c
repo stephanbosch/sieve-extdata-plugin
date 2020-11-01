@@ -78,9 +78,8 @@ ext_extdata_interpreter_free(const struct sieve_extension *ext ATTR_UNUSED,
 }
 
 static struct sieve_interpreter_extension extdata_interpreter_extension = {
-	&extdata_extension,
-	NULL,
-	ext_extdata_interpreter_free,
+	.ext_def = &extdata_extension,
+	.free = ext_extdata_interpreter_free,
 };
 
 static struct ext_extdata_interpreter_context *
