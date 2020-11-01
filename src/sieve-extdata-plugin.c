@@ -26,10 +26,8 @@ void sieve_extdata_plugin_load(struct sieve_instance *svinst, void **context)
 	pctx->ext_extdata = sieve_extension_register(svinst, &extdata_extension,
 						     FALSE);
 
-	if (svinst->debug) {
-		sieve_sys_debug(svinst, "%s version %s loaded",
-				SIEVE_EXTDATA_NAME, SIEVE_EXTDATA_VERSION);
-	}
+	e_debug(svinst->event, "%s version %s loaded",
+		SIEVE_EXTDATA_NAME, SIEVE_EXTDATA_VERSION);
 
 	*context = (void *)pctx;
 }
