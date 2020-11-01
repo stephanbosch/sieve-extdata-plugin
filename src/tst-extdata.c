@@ -35,15 +35,15 @@ tst_extdata_generate(const struct sieve_codegen_env *cgenv,
 		     struct sieve_command *cmd);
 
 const struct sieve_command_def tst_extdata = {
-	"extdata",
-	SCT_TEST,
-	2, 0, FALSE, FALSE,
-	tst_extdata_registered,
-	NULL,
-	tst_extdata_validate,
-	NULL,
-	tst_extdata_generate,
-	NULL,
+	.identifier = "extdata",
+	.type = SCT_TEST,
+	.positional_args = 2,
+	.subtests = 0,
+	.block_allowed = FALSE,
+	.block_required = FALSE,
+	.registered = tst_extdata_registered,
+	.validate = tst_extdata_validate,
+	.generate = tst_extdata_generate,
 };
 
 /*
@@ -58,11 +58,11 @@ tst_extdata_operation_execute(const struct sieve_runtime_env *renv,
 			      sieve_size_t *address);
 
 const struct sieve_operation_def tst_extdata_operation = {
-	"EXTDATA",
-	&extdata_extension,
-	0,
-	tst_extdata_operation_dump,
-	tst_extdata_operation_execute,
+	.mnemonic = "EXTDATA",
+	.ext_def = &extdata_extension,
+	.code = 0,
+	.dump = tst_extdata_operation_dump,
+	.execute = tst_extdata_operation_execute,
 };
 
 /*
